@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+				http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:property-placeholder location="classpath*:/sysconfig*.properties"/>
+
+    <!--包扫描，去除Controller-->
+    <context:component-scan base-package="com.cjw.demo" use-default-filters="true">
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!--<property name="mapperLocations" value="classpath*:com/cjw/demo/mapper/*.xml" />-->
+        <property name="configurationProperties">
+            <props>
+                <prop key="dialect">mysql</prop>
+            </props>
+        </property>
+        <property name="typeAliasesPackage" value="com.cjw.demo.entity.*"/>
+    </bean>
+
+    <!--mybatis相应配置-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.cjw.demo.mapper"/>
+    </bean>
+
+
+    <!-- 支持aop注解 -->
+    <!--<aop:aspectj-autoproxy proxy-target-class="true" />-->
+
+    <!--            <aop:config proxy-target-class="true">
+                    <aop:pointcut id="serviceMethod" expression="execution(* com.cjw.demo.service..*(..))"/>
+                    <aop:advisor pointcut-ref="serviceMethod" advice-ref="txAdvice"/>
+                </aop:config>
+                <tx:advice  id="txAdvice"  transaction-manager="transactionManager">
+                    <tx:attributes>
+                        <tx:method name="*"/>
+                    </tx:attributes>
+                </tx:advice>-->
+
+    <!--配置事务相关-->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="dataSource"
+          p:globalRollbackOnParticipationFailure="false"/>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
+          destroy-method="close"
+          p:driverClassName="${db.mysql.driver}"
+          p:url="${db.mysql.url}"
+          p:username="${db.mysql.username}"
+          p:password="${db.mysql.password}"
+            />
+
+        <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate"
+      p:dataSource-ref="dataSource"/>
+
+
+    <!--加载相关配置文件-->
+    <import resource="applicationContext-cache.xml"/>
+    <import resource="applicationContext-redis.xml"/>
+
+    <!-- 异步线程池 -->
+    <bean id="threadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <!-- 核心线程数  -->
+        <property name="corePoolSize" value="5" />
+        <!-- 最大线程数 -->
+        <property name="maxPoolSize" value="10" />
+        <!-- 线程池维护线程所允许的空闲时间 -->
+        <property name="keepAliveSeconds" value="300" />
+    </bean>
+
+
+</beans>
