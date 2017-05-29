@@ -9,11 +9,8 @@ public class LogOutPut {
         String className=stacks[1].getClassName();
         String methodname=stacks[1].getMethodName();
         System.out.println("this class name is "+className+" this method name is "+methodname);
-
-
-
     }
-    
+
     public static void main(String[] args) {
 //        getCallerClass();
     }
