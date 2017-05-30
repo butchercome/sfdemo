@@ -1,3 +1,5 @@
+package com.cjw.demo.sample;
+
 import com.cjw.demo.solr.SolrQueryClose;
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.junit.Test;

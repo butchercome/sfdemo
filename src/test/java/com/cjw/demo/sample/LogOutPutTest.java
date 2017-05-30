@@ -1,3 +1,5 @@
+package com.cjw.demo.sample;
+
 import com.cjw.demo.service.log.LogOutPut;
 import org.junit.Test;
 

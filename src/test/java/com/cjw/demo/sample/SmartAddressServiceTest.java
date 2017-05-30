@@ -1,3 +1,5 @@
+package com.cjw.demo.sample;
+
 import com.cjw.demo.address.SmartAddressServiceImpl;
 import com.cjw.demo.address.util.DataCache;
 import com.cjw.demo.util.JsonUtils;
