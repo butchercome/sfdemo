@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.cjw.demo</groupId>
+    <artifactId>demo2</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <skip_maven_deploy>false</skip_maven_deploy>
+        <file_encoding>utf-8</file_encoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>sun.jdk</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.6</version>
+            <scope>system</scope>
+            <systemPath>${java.home}/../lib/tools.jar</systemPath>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-test</artifactId>-->
+            <!--<version>4.3.2.RELEASE</version>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+
+    </dependencies>
+
+
+    <!--this  is on the pom of outer ,it's a sample so put hare-->
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <env.devMode>dev</env.devMode>
+                <skipAssemblyDEV>false</skipAssemblyDEV>
+                <skipAssemblyUAT>true</skipAssemblyUAT>
+                <skipAssemblyPROD>true</skipAssemblyPROD>
+            </properties>
+        </profile>
+        <profile>
+            <id>uat</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <env.devMode>uat</env.devMode>
+                <skipAssemblyDEV>true</skipAssemblyDEV>
+                <skipAssemblyUAT>false</skipAssemblyUAT>
+                <skipAssemblyPROD>true</skipAssemblyPROD>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+
+            <!--start mvn resources test-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>${file_encoding}</encoding>
+                </configuration>
+            </plugin>
+            <!--end mvn resources test-->
+
+
+            <!--start mvn jar test-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/log4j.xml</exclude>
+                        <exclude>**/system-config.properties</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!--end mvn jar test-->
+
+            <!--start mvn deploy test-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>${skip_maven_deploy}</skip>
+                </configuration>
+            </plugin>
+            <!--end mvn deploy test-->
+            <!--start mvn deploy level-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!--指定java编译器 -->
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <!--end mvn deploy level-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <!--dependency plugin test start-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>junit</groupId>
+                                    <artifactId>junit</artifactId>
+                                    <version>4.11</version>
+                                    <outputDirectory>${project.build.directory}/lib/lib1</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.slf4j</groupId>
+                                    <artifactId>slf4j-log4j12</artifactId>
+                                    <version>1.7.7</version>
+                                    <outputDirectory>${project.build.directory}/lib/lib1</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.slf4j</groupId>
+                                    <artifactId>slf4j-log4j12</artifactId>
+                                    <version>1.7.7</version>
+                                    <outputDirectory>${project.build.directory}/dubbo</outputDirectory>
+                                    <includes>org/**</includes>
+                                    <!--<outputDirectory>${project.build.directory}/dubbo</outputDirectory>-->
+                                    <!--<includes>META-INF/assembly/**</includes>-->
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--dependency plugin test end-->
+
+            <!--assembly test start-->
+            <!--this  include  the xml  assembly-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>         <!--执行-->
+                        <id>make-assembly-dev</id>  <!--The identifier of this execution for labelling the goals during the build   标志-->
+                        <phase>package</phase>      <!--The build lifecycle phase to bind the goals in this execution to  指定其编译阶段-->
+                        <goals>
+                            <goal>single</goal>     <!--The goals to execute with the given configuration-->
+                        </goals>
+                        <configuration>     <!--结构配置-->
+                            <skipAssembly>true</skipAssembly>   <!--profile声明参数调用-->
+                            <descriptors>
+                                <descriptor>src/main/assembly/dev/assembly.xml</descriptor>   <!--加载指定的assembly配置文件-->
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>make-assembly-uat</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>false</skipAssembly>
+                            <descriptors>
+                                <descriptor>src/main/assembly/uat/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>make-assembly-prod</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>true</skipAssembly>
+                            <descriptors>
+                                <descriptor>src/main/assembly/prod/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--assembly test end-->
+        </plugins>
+
+    </build>
+
+</project>
